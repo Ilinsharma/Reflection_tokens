@@ -1,7 +1,5 @@
-
 // File contracts/IERC20.sol
 
-// SPDX-License-Identifier: MIT License
 // SPDX-License-Identifier: MIT License
 
 
@@ -619,20 +617,16 @@ library SafeMathUint {
 
 /*
 MIT License
-
 Copyright (c) 2018 requestnetwork
 Copyright (c) 2018 Fragments, Inc.
-
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
-
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -850,7 +844,7 @@ contract DividendPayingToken is ERC20, Ownable, DividendPayingTokenInterface, Di
   using SafeMathUint for uint256;
   using SafeMathInt for int256;
 
-  address public immutable XRP = address(0x1D2F0da169ceB9fC7B3144628dB156f3F6c60dBE); //XRP
+  address public immutable XRP = address(0x1D2F0da169ceB9fC7B3144628dB156f3F6c60dBE); //XRP   0x1D2F0da169ceB9fC7B3144628dB156f3F6c60dBE
 
 
   // With `magnitude`, we can properly distribute dividends even if the amount of received ether is small.
@@ -1312,7 +1306,7 @@ contract VikingClash is ERC20, Ownable {
 
     address public immutable XRP = address(0x1D2F0da169ceB9fC7B3144628dB156f3F6c60dBE); //XRP
 
-    uint256 public swapTokensAtAmount = 2000000 * (10**18);
+    uint256 public swapTokensAtAmount = 200000 * (10**18); // 200K 
     uint256 public maxTxAmount = 100000000 * (10**18);
     uint256 public maxWalletBalance = 1000000000 * (10**18);
 
@@ -1323,7 +1317,7 @@ contract VikingClash is ERC20, Ownable {
     uint256 public marketingFee = 4; // 4% Marketing fee
     uint256 public totalFees = XRPRewardsFee.add(liquidityFee).add(marketingFee);
 
-    address public _marketingWalletAddress = 0x3336fc775C770Aa88AB3d805A0648a852A6d91f8; // Marketing address
+    address public _marketingWalletAddress = 0x8976E75158b6d0E004f1a22f8D529e86f2050CEf; // Marketing address
 
 
     // use by default 300,000 gas to process auto-claiming dividends
@@ -1374,7 +1368,7 @@ contract VikingClash is ERC20, Ownable {
 
     	dividendTracker = new VikingClashDividendTracker();
 
-
+        // Mainnet 0x10ED43C718714eb63d5aA57B78B54704E256024E
     	IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
          // Create a uniswap pair for this new token
         address _uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
@@ -1474,6 +1468,10 @@ contract VikingClash is ERC20, Ownable {
 
     function setMaxWalletBalance(uint256 amount) external onlyOwner{
         maxWalletBalance = amount * (10**18);
+    }
+    
+    function setSwapTokensAtAmount(uint256 amount) external onlyOwner{
+        swapTokensAtAmount = amount * (10**18);
     }
 
     function setAutomatedMarketMakerPair(address pair, bool value) public onlyOwner {
