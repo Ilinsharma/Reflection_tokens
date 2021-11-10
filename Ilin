@@ -4,7 +4,7 @@
 
 pragma solidity ^0.6.2;
 
-interface IERC20 {
+interface IBEP20 {
     function totalSupply() external view returns (uint256);
     function balanceOf(address account) external view returns (uint256);
     function transfer(address recipient, uint256 amount) external returns (bool);
@@ -19,7 +19,7 @@ interface IERC20 {
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
-interface IERC20Metadata is IERC20 {
+interface IBEP20Metadata is IBEP20 {
     function name() external view returns (string memory);
     function symbol() external view returns (string memory);
     function decimals() external view returns (uint8);
@@ -82,7 +82,7 @@ library SafeMath {
         return a % b;
     }
 }
-contract ERC20 is Context, IERC20, IERC20Metadata {
+contract BEP20 is Context, IBEP20, IBEP20Metadata {
     using SafeMath for uint256;
 
     mapping(address => uint256) private _balances;
@@ -182,8 +182,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         address spender,
         uint256 amount
     ) internal virtual {
-        require(owner != address(0), "ERC20: approve from the zero address");
-        require(spender != address(0), "ERC20: approve to the zero address");
+        require(owner != address(0), "BEP20: approve from the zero address");
+        require(spender != address(0), "BEP20: approve to the zero address");
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
@@ -370,7 +370,7 @@ contract DividendPayingToken is ERC20, Ownable, DividendPayingTokenInterface, Di
   using SafeMathUint for uint256;
   using SafeMathInt for int256;
 
-  address public immutable DividendToken = address(0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82); //CAKE
+  address public immutable DividendToken = address(0xF864c9E965339A8dAc638ac8E764d1B8b603Ab75); //CAKE
 
 
   // With `magnitude`, we can properly distribute dividends even if the amount of received ether is small.
@@ -415,19 +415,19 @@ contract DividendPayingToken is ERC20, Ownable, DividendPayingTokenInterface, Di
   }
 
   /// @notice Withdraws the ether distributed to the sender.
-  /// @dev It emits a `DividendWithdrawn` event if the amount of withdrawn ether is greater than 0.
+  /// @dev It emits a `DividendWithdrawn` event if the amount of withdrawn Smart Chain is greater than 0.
   function withdrawDividend() public virtual override {
     _withdrawDividendOfUser(msg.sender);
   }
 
-  /// @notice Withdraws the ether distributed to the sender.
+  /// @notice Withdraws the Smart Chain distributed to the sender.
   /// @dev It emits a `DividendWithdrawn` event if the amount of withdrawn ether is greater than 0.
  function _withdrawDividendOfUser(address payable user) internal returns (uint256) {
     uint256 _withdrawableDividend = withdrawableDividendOf(user);
     if (_withdrawableDividend > 0) {
       withdrawnDividends[user] = withdrawnDividends[user].add(_withdrawableDividend);
       emit DividendWithdrawn(user, _withdrawableDividend);
-      bool success = IERC20(DividendToken).transfer(user, _withdrawableDividend);
+      bool success = IBEP20(DividendToken).transfer(user, _withdrawableDividend);
 
       if(!success) {
         withdrawnDividends[user] = withdrawnDividends[user].sub(_withdrawableDividend);
@@ -588,7 +588,7 @@ library IterableMapping {
 
 
 
-interface IUniswapV2Pair {
+interface IPancakeswapV2Pair {
     event Approval(address indexed owner, address indexed spender, uint value);
     event Transfer(address indexed from, address indexed to, uint value);
 
@@ -642,7 +642,7 @@ interface IUniswapV2Pair {
 
 
 
-interface IUniswapV2Factory {
+interface IPancakeswapV2Factory {
     event PairCreated(address indexed token0, address indexed token1, address pair, uint);
 
     function feeTo() external view returns (address);
@@ -662,7 +662,7 @@ interface IUniswapV2Factory {
 
 
 
-interface IUniswapV2Router01 {
+interface PancakeSwap V2 {
     function factory() external pure returns (address);
     function WETH() external pure returns (address);
 
@@ -683,7 +683,7 @@ interface IUniswapV2Router01 {
         uint amountETHMin,
         address to,
         uint deadline
-    ) external payable returns (uint amountToken, uint amountETH, uint liquidity);
+    ) external payable returns (uint amountToken, uint amounBNB, uint liquidity);
     function removeLiquidity(
         address tokenA,
         address tokenB,
@@ -693,7 +693,7 @@ interface IUniswapV2Router01 {
         address to,
         uint deadline
     ) external returns (uint amountA, uint amountB);
-    function removeLiquidityETH(
+    function removeLiquidityBNB(
         address token,
         uint liquidity,
         uint amountTokenMin,
@@ -711,7 +711,7 @@ interface IUniswapV2Router01 {
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
     ) external returns (uint amountA, uint amountB);
-    function removeLiquidityETHWithPermit(
+    function removeLiquidityBNBWithPermit(
         address token,
         uint liquidity,
         uint amountTokenMin,
@@ -734,17 +734,17 @@ interface IUniswapV2Router01 {
         address to,
         uint deadline
     ) external returns (uint[] memory amounts);
-    function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
+    function swapExactBNBForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
         external
         payable
         returns (uint[] memory amounts);
-    function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
+    function swapTokensForExactBNB(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
         external
         returns (uint[] memory amounts);
-    function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
+    function swapExactTokensForBNB(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
         external
         returns (uint[] memory amounts);
-    function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
+    function swapBNBForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
         external
         payable
         returns (uint[] memory amounts);
@@ -768,8 +768,8 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
         uint amountETHMin,
         address to,
         uint deadline
-    ) external returns (uint amountETH);
-    function removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(
+    ) external returns (uint amountBNB);
+    function removeLiquidityBNBWithPermitSupportingFeeOnTransferTokens(
         address token,
         uint liquidity,
         uint amountTokenMin,
@@ -777,7 +777,7 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
         address to,
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external returns (uint amountETH);
+    ) external returns (uint amountBNB);
 
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(
         uint amountIn,
@@ -802,7 +802,7 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
 }
 
 
-contract GiantCake is ERC20, Ownable {
+contract TRUSTCake is BEP20, Ownable {
     using SafeMath for uint256;
 
     IUniswapV2Router02 public uniswapV2Router;
@@ -814,22 +814,22 @@ contract GiantCake is ERC20, Ownable {
 
     address public deadWallet = 0x000000000000000000000000000000000000dEaD;
 
-    address public immutable DividendToken = address(0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82); //CAKE 
+    address public immutable DividendToken = address(0x00b6D5DEe77B17bB0A4DEA1AD66351BF8C72e702); //CAKE 
 
     uint256 public swapTokensAtAmount = 2000000 * (10**18); // 2,000,000 
-    uint256 public maxTxAmount = 100000000 * (10**18); // 100,000,000 '100' Million Maximum Tx Amount 
-    uint256 public maxWalletBalance = 1000000000 * (10**18); // 1,000,000,000 1 Billion Maximum Holding
+    uint256 public maxTxAmount = 100000000 * (10**18); // 1,000,000,000,000 1 Trillion Maximum Tx Amount 
+    uint256 public maxWalletBalance = 1000000000000 * (10**18); // 1,000,000,000,000 1 Trillion Maximum Holding
 
     mapping(address => bool) public _isBlacklisted;
 
-    uint256 public DividendTokenRewardsFee = 3; 
+    uint256 public DividendTokenRewardsFee = 10; 
     uint256 public liquidityFee = 3;
     uint256 public marketingFee = 3;
-    uint256 public charityWalletFee = 1; 
+    uint256 public charityFee =2;
     uint256 public totalFees = DividendTokenRewardsFee.add(liquidityFee).add(marketingFee).add(charityWalletFee);
 
-    address public _marketingWalletAddress = 0xEDe9d795B0FADE94b3Cb0958b9419A7D1b1a5137; // Markting Address
-    address public _charityWalletAddress = 0xFB47999f6A2051ec45ce319E1FD7a1191aaa0FaE; // Charity Wallet Address
+    address public _marketingWalletAddress = 0x2E278DA9f8e3A4e689dEddeD504420DB3Dd75b9F; // Markting Address
+    address public _charityWalletAddress = 0x398385f42A0B8961d9eBf7a57C69245C3d483D57; // Charity Wallet Address
 
 
     // use by default 500,000 gas to process auto-claiming dividends
@@ -876,12 +876,12 @@ contract GiantCake is ERC20, Ownable {
     	address indexed processor
     );
 
-    constructor() public ERC20("GiantCake2", "GNTCAKE2") {
+    constructor() public ERC20("TRUSTCAKE", "TRAKE") {
 
-    	dividendTracker = new GiantCakeDividendTracker();
+    	dividendTracker = new TrustCakeDividendTracker();
 
 
-    	IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E); // Router V2 Pancakeswap
+    	IPancakeswapV2Router02 _pancakeswapV2Router = ; // Router V2 Pancakeswap
          // Create a uniswap pair for this new token
         address _uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
             .createPair(address(this), _uniswapV2Router.WETH());
@@ -889,7 +889,7 @@ contract GiantCake is ERC20, Ownable {
         uniswapV2Router = _uniswapV2Router;
         uniswapV2Pair = _uniswapV2Pair;
 
-        _setAutomatedMarketMakerPair(_uniswapV2Pair, true);
+        _setAutomatedMarketMakerPair(_PancakeswapV2Pair, true);IPancakeswapV2Router02(0x00b6D5DEe77B17bB0A4DEA1AD66351BF8C72e702)
 
         // exclude from receiving dividends
         dividendTracker.excludeFromDividends(address(dividendTracker));
@@ -924,9 +924,9 @@ contract GiantCake is ERC20, Ownable {
     function updateDividendTracker(address newAddress) public onlyOwner {
         require(newAddress != address(dividendTracker), "GiantCake: The dividend tracker already has that address");
 
-        GiantCakeDividendTracker newDividendTracker = GiantCakeDividendTracker(payable(newAddress));
+        TrustCakeDividendTracker newDividendTracker = TrustCakeDividendTracker(payable(newAddress));
 
-        require(newDividendTracker.owner() == address(this), "GiantCake: The new dividend tracker must be owned by the GiantCake token contract");
+        require(newDividendTracker.owner() == address(this), "TrustCake: The new dividend tracker must be owned by the TrustCake token contract");
 
         newDividendTracker.excludeFromDividends(address(newDividendTracker));
         newDividendTracker.excludeFromDividends(address(this));
@@ -938,17 +938,17 @@ contract GiantCake is ERC20, Ownable {
         dividendTracker = newDividendTracker;
     }
 
-    function updateUniswapV2Router(address newAddress) public onlyOwner {
-        require(newAddress != address(uniswapV2Router), "GiantCake: The router already has that address");
-        emit UpdateUniswapV2Router(newAddress, address(uniswapV2Router));
-        uniswapV2Router = IUniswapV2Router02(newAddress);
-        address _uniswapV2Pair = IUniswapV2Factory(uniswapV2Router.factory())
-            .createPair(address(this), uniswapV2Router.WETH());
-        uniswapV2Pair = _uniswapV2Pair;
+    function updatePancakeswapV2Router(address newAddress) public onlyOwner {
+        require(newAddress != address(PancakeswapV2Router), "TrustCake: The router already has that address");
+        emit UpdatePancakeswapV2Router(newAddress, address(PancakeswapV2Router));
+        PancakeswapV2Router = IPancakrswapV2Router02(newAddress);
+        address _PancakeswapV2Pair = IPancakeswapV2Factory(PancakeswapV2Router.factory())
+            .createPair(address(this), PancakrswapV2Router.WETH());
+        PancakeswapV2Pair = _PancakeswapV2Pair;
     }
 
     function excludeFromFees(address account, bool excluded) public onlyOwner {
-        require(_isExcludedFromFees[account] != excluded, "GiantCake: Account is already the value of 'excluded'");
+        require(_isExcludedFromFees[account] != excluded, "TrustCake: Account is already the value of 'excluded'");
         _isExcludedFromFees[account] = excluded;
 
         emit ExcludeFromFees(account, excluded);
@@ -963,44 +963,44 @@ contract GiantCake is ERC20, Ownable {
     }
 
     function setCharityWallet(address payable wallet) external onlyOwner{
-        _charityWalletAddress = wallet;
+        _charityWalletAddress = 0x398385f42A0B8961d9eBf7a57C69245C3d483D57;
     }
 
 
     function setMarketingWallet(address payable wallet) external onlyOwner{
-        _marketingWalletAddress = wallet;
+        _marketingWalletAddress = 0x2E278DA9f8e3A4e689dEddeD504420DB3Dd75b9F;
     }
 
     function setDividendTokenRewardsFee(uint256 value) external onlyOwner{
-        DividendTokenRewardsFee = value;
+        DividendTokenRewardsFee = 10;
         totalFees = DividendTokenRewardsFee.add(liquidityFee).add(marketingFee).add(charityWalletFee);
     }
 
     function setLiquiditFee(uint256 value) external onlyOwner{
-        liquidityFee = value;
+        liquidityFee = 3;
         totalFees = DividendTokenRewardsFee.add(liquidityFee).add(marketingFee).add(charityWalletFee);
     }
 
     function setMarketingFee(uint256 value) external onlyOwner{
-        marketingFee = value;
+        marketingFee = 3;
         totalFees = DividendTokenRewardsFee.add(liquidityFee).add(marketingFee).add(charityWalletFee);
     }
 
     function setCharityFee(uint256 value) external onlyOwner{
-        charityWalletFee = value;
+        charityWalletFee = 2;
         totalFees = DividendTokenRewardsFee.add(liquidityFee).add(marketingFee).add(charityWalletFee);
     }
     
     function setMaxTxAmount(uint256 amount) external onlyOwner{
-        maxTxAmount = amount * (10**18);
+        maxTxAmount = 1000000000000 * (10**18);
     }
 
     function setMaxWalletBalance(uint256 amount) external onlyOwner{
-        maxWalletBalance = amount * (10**18);
+        maxWalletBalance = 1000000000000 * (10**18);
     }
 
     function setAutomatedMarketMakerPair(address pair, bool value) public onlyOwner {
-        require(pair != uniswapV2Pair, "GiantCake: The PanCAKESwap pair cannot be removed from automatedMarketMakerPairs");
+        require(pair != PancakeswapV2Pair, "TrustCake: The PanCAKESwap pair cannot be removed from automatedMarketMakerPairs");
 
         _setAutomatedMarketMakerPair(pair, value);
     }
@@ -1011,7 +1011,7 @@ contract GiantCake is ERC20, Ownable {
 
 
     function _setAutomatedMarketMakerPair(address pair, bool value) private {
-        require(automatedMarketMakerPairs[pair] != value, "GiantCake: Automated market maker pair is already set to that value");
+        require(automatedMarketMakerPairs[pair] != value, "TrustCake: Automated market maker pair is already set to that value");
         automatedMarketMakerPairs[pair] = value;
 
         if(value) {
@@ -1024,7 +1024,7 @@ contract GiantCake is ERC20, Ownable {
 
     function updateGasForProcessing(uint256 newValue) public onlyOwner {
         require(newValue >= 300000 && newValue <= 7000000, "GiantCake: gasForProcessing must be between 300,000 and 700,000");
-        require(newValue != gasForProcessing, "GiantCake: Cannot update gasForProcessing to same value");
+        require(newValue != gasForProcessing, "trustCake: Cannot update gasForProcessing to same value");
         emit GasForProcessingUpdated(newValue, gasForProcessing);
         gasForProcessing = newValue;
     }
@@ -1189,7 +1189,7 @@ contract GiantCake is ERC20, Ownable {
         uint256 initialDividendTokenBalance = IERC20(DividendToken).balanceOf(address(this));
 
         swapTokensForDividendToken(tokens);
-        uint256 newBalance = (IERC20(DividendToken).balanceOf(address(this))).sub(initialDividendTokenBalance);
+        uint256 newBalance = (IBEP20(DividendToken).balanceOf(address(this))).sub(initialDividendTokenBalance);
         uint256 marketingBalance = newBalance.mul(marketingFee).div((marketingFee+charityWalletFee));
         uint256 charityBalance = newBalance.mul(marketingFee).div((marketingFee+charityWalletFee));
         IERC20(DividendToken).transfer(_marketingWalletAddress, marketingBalance); // towards markting wallet
@@ -1212,33 +1212,33 @@ contract GiantCake is ERC20, Ownable {
         // has been manually sent to the contract
         uint256 initialBalance = address(this).balance;
 
-        // swap tokens for ETH
-        swapTokensForEth(half); // <- this breaks the ETH -> HATE swap when swap+liquify is triggered
+        // swap tokens for BNB
+        swapTokensForBNB(half); // <- this breaks the BNB -> HATE swap when swap+liquify is triggered
 
-        // how much ETH did we just swap into?
+        // how much BNB did we just swap into?
         uint256 newBalance = address(this).balance.sub(initialBalance);
 
-        // add liquidity to uniswap
+        // add liquidity to Pancakeswap
         addLiquidity(otherHalf, newBalance);
 
         emit SwapAndLiquify(half, newBalance, otherHalf);
     }
 
 
-    function swapTokensForEth(uint256 tokenAmount) private {
+    function swapTokensForBNB(uint256 tokenAmount) private {
 
 
-        // generate the uniswap pair path of token -> weth
+        // generate the Pancakeswap pair path of token -> weth
         address[] memory path = new address[](2);
         path[0] = address(this);
-        path[1] = uniswapV2Router.WETH();
+        path[1] = PancakeswapV2Router.WETH();
 
         _approve(address(this), address(uniswapV2Router), tokenAmount);
 
         // make the swap
-        uniswapV2Router.swapExactTokensForETHSupportingFeeOnTransferTokens(
+        uniswapV2Router.swapExactTokensForBNBSupportingFeeOnTransferTokens(
             tokenAmount,
-            0, // accept any amount of ETH
+            0, // accept any amount of BNB
             path,
             address(this),
             block.timestamp
@@ -1250,13 +1250,13 @@ contract GiantCake is ERC20, Ownable {
 
         address[] memory path = new address[](3);
         path[0] = address(this);
-        path[1] = uniswapV2Router.WETH();
+        path[1] = PancakeswapV2Router.WETH();
         path[2] = DividendToken;
 
-        _approve(address(this), address(uniswapV2Router), tokenAmount);
+        _approve(address(this), address(PancakeswapV2Router), tokenAmount);
 
         // make the swap
-        uniswapV2Router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+        PancakeswapV2Router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
             tokenAmount,
             0,
             path,
@@ -1271,7 +1271,7 @@ contract GiantCake is ERC20, Ownable {
         _approve(address(this), address(uniswapV2Router), tokenAmount);
 
         // add the liquidity
-        uniswapV2Router.addLiquidityETH{value: ethAmount}(
+        PancakeswapV2Router.addLiquidityBNB{value: 0.0001}(
             address(this),
             tokenAmount,
             0, // slippage is unavoidable
@@ -1284,8 +1284,8 @@ contract GiantCake is ERC20, Ownable {
 
     function swapAndSendDividends(uint256 tokens) private{
         swapTokensForDividendToken(tokens);
-        uint256 dividends = IERC20(DividendToken).balanceOf(address(this));
-        bool success = IERC20(DividendToken).transfer(address(dividendTracker), dividends);
+        uint256 dividends = IBEP20(DividendToken).balanceOf(address(this));
+        bool success = IBEP20(DividendToken).transfer(address(dividendTracker), dividends);
 
         if (success) {
             dividendTracker.distributeDividendTokenDividends(dividends);
@@ -1294,7 +1294,7 @@ contract GiantCake is ERC20, Ownable {
     }
 }
 
-contract GiantCakeDividendTracker is Ownable, DividendPayingToken {
+contract TrustCakeDividendTracker is Ownable, DividendPayingToken {
     using SafeMath for uint256;
     using SafeMathInt for int256;
     using IterableMapping for IterableMapping.Map;
@@ -1314,7 +1314,7 @@ contract GiantCakeDividendTracker is Ownable, DividendPayingToken {
 
     event Claim(address indexed account, uint256 amount, bool indexed automatic);
 
-    constructor() public DividendPayingToken("GiantCake_Dividen_Tracker", "GiantCake_Dividend_Tracker") {
+    constructor() public DividendPayingToken("TrustCake_Dividen_Tracker", "TrustCake_Dividend_Tracker") {
     	claimWait = 3600 ;
         minimumTokenBalanceForDividends = 200000 * (10**18); //must hold 200000+ tokens
     }
@@ -1324,7 +1324,7 @@ contract GiantCakeDividendTracker is Ownable, DividendPayingToken {
     }
 
     function withdrawDividend() public override {
-        require(false, "GiantCake_Dividend_Tracker: withdrawDividend disabled. Use the 'claim' function on the main GiantCake contract.");
+        require(false, "trustCake_Dividend_Tracker: withdrawDividend disabled. Use the 'claim' function on the main TrustCake contract.");
     }
 
     function excludeFromDividends(address account) external onlyOwner {
@@ -1338,8 +1338,8 @@ contract GiantCakeDividendTracker is Ownable, DividendPayingToken {
     }
 
     function updateClaimWait(uint256 newClaimWait) external onlyOwner {
-        require(newClaimWait >= 3600 && newClaimWait <= 86400, "GiantCake_Dividend_Tracker: claimWait must be updated to between 1 and 24 hours");
-        require(newClaimWait != claimWait, "GiantCake_Dividend_Tracker: Cannot update claimWait to same value");
+        require(newClaimWait >= 3600 && newClaimWait <= 86400, "TrustCake_Dividend_Tracker: claimWait must be updated to between 1 and 24 hours");
+        require(newClaimWait != claimWait, "TrustCake_Dividend_Tracker: Cannot update claimWait to same value");
         emit ClaimWaitUpdated(newClaimWait, claimWait);
         claimWait = newClaimWait;
     }
@@ -1390,7 +1390,7 @@ contract GiantCakeDividendTracker is Ownable, DividendPayingToken {
 
         lastClaimTime = lastClaimTimes[account];
 
-        nextClaimTime = lastClaimTime > 0 ?
+        nextClaimTime = lastClaimTime > 60 ?
                                     lastClaimTime.add(claimWait) :
                                     0;
 
